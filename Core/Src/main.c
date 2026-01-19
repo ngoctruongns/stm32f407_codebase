@@ -23,6 +23,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <stdio.h>
 
 /* USER CODE END Includes */
 
@@ -44,7 +45,10 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint32_t duty = 0;
+uint8_t is_first_capture = 1;
+uint32_t last_capture = 0;
+uint32_t duty_cycle = 0;
+uint32_t pulse_width = 0;
 
 /* USER CODE END PV */
 
@@ -62,6 +66,41 @@ int _write(int file, char *ptr, int len)
         ITM_SendChar((*ptr++));
     }
     return len;
+}
+
+// Handler for input capture, calculate duty cycle
+void input_capture_tim3_cc1_handler(uint32_t captured_value) {
+    if (is_first_capture) {
+        last_capture = captured_value;
+        is_first_capture = 0;
+        return;
+    }
+
+    if (captured_value >= last_capture) {
+        duty_cycle = captured_value - last_capture;
+    } else {
+        // Handle timer overflow
+        duty_cycle = (0xFFFF - last_capture) + captured_value + 1;
+    }
+
+    last_capture = captured_value;
+
+    // Print duty cycle for debugging
+    printf("Captured Duty Cycle: %lu\r\n", duty_cycle);
+
+}
+
+void input_capture_tim3_cc2_handler(uint32_t falling_value) {
+    // Calculate pulse width, when falling edge is captured - rising edge was stored
+    if (falling_value >= last_capture) {
+        pulse_width = falling_value - last_capture;
+    } else {
+        // Handle timer overflow
+        pulse_width = (0xFFFF - last_capture) + falling_value + 1;
+    }
+
+    // Print pulse width for debugging
+    printf("Captured Pulse Width: %lu\r\n", pulse_width);
 }
 /* USER CODE END 0 */
 

@@ -67,6 +67,9 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+// Interrupt handlers for timers
+void input_capture_tim3_cc1_handler(uint32_t captured_value);
+void input_capture_tim3_cc2_handler(uint32_t captured_value);
 
 /* USER CODE END EFP */
 

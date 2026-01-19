@@ -217,6 +217,41 @@ void TIM2_IRQHandler(void)
   /* USER CODE END TIM2_IRQn 1 */
 }
 
+/**
+  * @brief This function handles TIM3 global interrupt.
+  */
+void TIM3_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM3_IRQn 0 */
+    uint32_t captured_value = 0;
+    // Check if the capture flag is set for channel 1
+    if (LL_TIM_IsActiveFlag_CC1(TIM3)) {
+        // Read the captured value
+        captured_value = LL_TIM_IC_GetCaptureCH1(TIM3);
+        // Clear the capture flag
+        LL_TIM_ClearFlag_CC1(TIM3);
+
+        // call the input capture handler
+        input_capture_tim3_cc1_handler(captured_value);
+    }
+
+    // Check if the capture flag is set for channel 2
+    if (LL_TIM_IsActiveFlag_CC2(TIM3)) {
+        // Read the captured value
+        captured_value = LL_TIM_IC_GetCaptureCH2(TIM3);
+
+        // Clear the capture flag
+        LL_TIM_ClearFlag_CC2(TIM3);
+
+        // call the input capture handler
+        input_capture_tim3_cc2_handler(captured_value);
+    }
+  /* USER CODE END TIM3_IRQn 0 */
+  /* USER CODE BEGIN TIM3_IRQn 1 */
+
+  /* USER CODE END TIM3_IRQn 1 */
+}
+
 /* USER CODE BEGIN 1 */
 
 /* USER CODE END 1 */
