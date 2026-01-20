@@ -86,10 +86,11 @@ void input_capture_tim3_cc1_handler(uint32_t captured_value) {
     last_capture = captured_value;
 
     // Print duty cycle for debugging
-    printf("Captured Duty Cycle: %lu\r\n", duty_cycle);
+    // printf("Captured Duty Cycle: %lu\r\n", duty_cycle);
 
 }
 
+// Measure pulse width on falling edge, used for echo signal from ultrasonic sensor
 void input_capture_tim3_cc2_handler(uint32_t falling_value) {
     // Calculate pulse width, when falling edge is captured - rising edge was stored
     if (falling_value >= last_capture) {
@@ -99,8 +100,9 @@ void input_capture_tim3_cc2_handler(uint32_t falling_value) {
         pulse_width = (0xFFFF - last_capture) + falling_value + 1;
     }
 
+    float distance = ((float) pulse_width * 0.0343f) / 2.0f; // in cm
     // Print pulse width for debugging
-    printf("Captured Pulse Width: %lu\r\n", pulse_width);
+    printf("Distance (cm): %d\r\n", (int) distance);
 }
 /* USER CODE END 0 */
 
@@ -145,6 +147,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   MX_TIM3_Init();
+  MX_TIM5_Init();
   /* USER CODE BEGIN 2 */
     // Initialize servos
     Servo_Init();
