@@ -18,6 +18,7 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "adc.h"
 #include "tim.h"
 #include "gpio.h"
 
@@ -49,6 +50,9 @@ uint8_t is_first_capture = 1;
 uint32_t last_capture = 0;
 uint32_t duty_cycle = 0;
 uint32_t pulse_width = 0;
+uint16_t adc_value;
+int16_t angle;
+float temperature;
 
 /* USER CODE END PV */
 
@@ -104,6 +108,27 @@ void input_capture_tim3_cc2_handler(uint32_t falling_value) {
     // Print pulse width for debugging
     printf("Distance (cm): %d\r\n", (int) distance);
 }
+
+// ADC conversion complete interrupt handler
+void ADC1_IRQHandler(uint16_t val)
+{
+    adc_value = val;
+    printf("ADC Value: %d\r\n", adc_value);
+}
+
+float ADC_readTemperature(uint16_t adc_raw)
+{
+    float vsense;
+    float temperature;
+
+    // Convert to Vsense
+    vsense = (float)adc_raw * 3300.0f / 4095.0f;
+
+    // Calculate temperature in Celsius
+    temperature = ((vsense - 760.0f) / 2.5f) + 25.0f;
+
+    return temperature;
+}
 /* USER CODE END 0 */
 
 /**
@@ -147,7 +172,7 @@ int main(void)
   MX_TIM2_Init();
   MX_TIM4_Init();
   MX_TIM3_Init();
-  MX_TIM5_Init();
+  MX_ADC1_Init();
   /* USER CODE BEGIN 2 */
     // Initialize servos
     Servo_Init();
@@ -155,24 +180,40 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+    // ADC1_triggerConvert();
 
 
   while (1)
   {
-    // Rotate servo1 from 0 to 180 degrees
-    for (int16_t angle = 0; angle <= 180; angle += 1) {
-        Servo_setAngle(SERVO1, angle);
-        LL_mDelay(5);
-    }
+    // // Rotate servo1 from 0 to 180 degrees
+    // for (int16_t angle = 0; angle <= 180; angle += 1) {
+    //     Servo_setAngle(SERVO1, angle);
+    //     LL_mDelay(5);
+    // }
 
-    LL_mDelay(500);
+    // LL_mDelay(500);
 
-    // Rotate servo1 from 180 to 0 degrees
-    for (int16_t angle = 180; angle >= 0; angle -= 1) {
-        Servo_setAngle(SERVO1, angle);
-        LL_mDelay(5);
-    }
-    LL_mDelay(500);
+    // // Rotate servo1 from 180 to 0 degrees
+    // for (int16_t angle = 180; angle >= 0; angle -= 1) {
+    //     Servo_setAngle(SERVO1, angle);
+    //     LL_mDelay(5);
+    // }
+    // LL_mDelay(500);
+
+    /* Read ADC value */
+
+    // // Mode1: Independent mode
+    // ADC1_triggerConvert();
+    // adc_value = ADC1_readValue();
+
+    // // Convert ADC value to temperature in Celsius when using internal temperature sensor
+    // temperature = ADC_readTemperature(adc_value);
+    // printf("ADC Value: %d, Temperature: %d C\r\n", adc_value, (int)temperature);
+
+    // convert ADC to angle (0-180)
+    angle = (adc_value * 180) / 4095;
+    Servo_setAngle(SERVO1, angle);
+    LL_mDelay(300);
 
     /* USER CODE END WHILE */
 

@@ -28,6 +28,7 @@ extern "C" {
 
 /* Includes ------------------------------------------------------------------*/
 
+#include "stm32f4xx_ll_adc.h"
 #include "stm32f4xx_ll_rcc.h"
 #include "stm32f4xx_ll_bus.h"
 #include "stm32f4xx_ll_system.h"
@@ -45,7 +46,7 @@ extern "C" {
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include <stdint.h>
 /* USER CODE END Includes */
 
 /* Exported types ------------------------------------------------------------*/
@@ -70,6 +71,9 @@ void Error_Handler(void);
 // Interrupt handlers for timers
 void input_capture_tim3_cc1_handler(uint32_t captured_value);
 void input_capture_tim3_cc2_handler(uint32_t captured_value);
+
+// Interrupt handler for ADC
+void ADC1_IRQHandler(uint16_t adc_value);
 
 /* USER CODE END EFP */
 

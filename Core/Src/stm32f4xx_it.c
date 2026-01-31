@@ -199,6 +199,27 @@ void SysTick_Handler(void)
 /******************************************************************************/
 
 /**
+  * @brief This function handles ADC1, ADC2 and ADC3 global interrupts.
+  */
+void ADC_IRQHandler(void)
+{
+  /* USER CODE BEGIN ADC_IRQn 0 */
+    // Check for end of conversion flag
+    if (LL_ADC_IsActiveFlag_EOCS(ADC1)) {
+        // Clear the end of conversion flag
+        LL_ADC_ClearFlag_EOCS(ADC1);
+
+        // Read the ADC conversion result
+        uint16_t adc_value = LL_ADC_REG_ReadConversionData12(ADC1);
+        ADC1_IRQHandler(adc_value);
+    }
+  /* USER CODE END ADC_IRQn 0 */
+  /* USER CODE BEGIN ADC_IRQn 1 */
+
+  /* USER CODE END ADC_IRQn 1 */
+}
+
+/**
   * @brief This function handles TIM2 global interrupt.
   */
 void TIM2_IRQHandler(void)
