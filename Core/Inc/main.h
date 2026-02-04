@@ -38,6 +38,7 @@ extern "C" {
 #include "stm32f4xx_ll_pwr.h"
 #include "stm32f4xx_ll_dma.h"
 #include "stm32f4xx_ll_tim.h"
+#include "stm32f4xx_ll_usart.h"
 #include "stm32f4xx_ll_gpio.h"
 
 #if defined(USE_FULL_ASSERT)
@@ -71,9 +72,9 @@ void Error_Handler(void);
 // Interrupt handlers for timers
 void input_capture_tim3_cc1_handler(uint32_t captured_value);
 void input_capture_tim3_cc2_handler(uint32_t captured_value);
-
-// Interrupt handler for ADC
-void ADC1_IRQHandler(uint16_t adc_value);
+void adc1_interrupt_handler(uint16_t adc_value);
+void usart2_interrupt_handler(uint8_t data);
+void tim7_interrupt_handler(void);
 
 /* USER CODE END EFP */
 

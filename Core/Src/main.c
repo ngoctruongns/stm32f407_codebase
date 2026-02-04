@@ -20,6 +20,7 @@
 #include "main.h"
 #include "adc.h"
 #include "tim.h"
+#include "usart.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
@@ -53,6 +54,8 @@ uint32_t pulse_width = 0;
 uint16_t adc_value;
 int16_t angle;
 float temperature;
+char usart_buffer[50];
+int32_t encoder_count = 0;
 
 /* USER CODE END PV */
 
@@ -64,12 +67,18 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-int _write(int file, char *ptr, int len)
+// int _write(int file, char *ptr, int len)
+//{
+//     for (int i = 0; i < len; i++) {
+//         ITM_SendChar((*ptr++));
+//     }
+//     return len;
+// }
+
+int __io_putchar(int ch)
 {
-    for (int i = 0; i < len; i++) {
-        ITM_SendChar((*ptr++));
-    }
-    return len;
+    USART2_sendChar(ch);
+    return ch;
 }
 
 // Handler for input capture, calculate duty cycle
@@ -104,16 +113,15 @@ void input_capture_tim3_cc2_handler(uint32_t falling_value) {
         pulse_width = (0xFFFF - last_capture) + falling_value + 1;
     }
 
-    float distance = ((float) pulse_width * 0.0343f) / 2.0f; // in cm
-    // Print pulse width for debugging
-    printf("Distance (cm): %d\r\n", (int) distance);
+    // float distance = ((float) pulse_width * 0.0343f) / 2.0f; // in cm
+    // printf("Distance (cm): %d\r\n", (int) distance);
 }
 
 // ADC conversion complete interrupt handler
-void ADC1_IRQHandler(uint16_t val)
+void adc1_interrupt_handler(uint16_t val)
 {
     adc_value = val;
-    printf("ADC Value: %d\r\n", adc_value);
+    // printf("ADC Value: %d\r\n", adc_value);
 }
 
 float ADC_readTemperature(uint16_t adc_raw)
@@ -129,6 +137,26 @@ float ADC_readTemperature(uint16_t adc_raw)
 
     return temperature;
 }
+
+void usart2_interrupt_handler(uint8_t data)
+{
+    // Echo received data back
+    USART2_sendChar(data);
+}
+
+void tim7_interrupt_handler(void)
+{
+    // Trigger ADC conversion
+    ADC1_triggerConvert();
+
+    // Toggle LED LD3
+    LL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
+
+    // Get encoder count from TIM2
+    encoder_count = Encoder_GetCount();
+    printf("Encoder Count: %ld\r\n", encoder_count);
+}
+
 /* USER CODE END 0 */
 
 /**
@@ -173,6 +201,8 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM3_Init();
   MX_ADC1_Init();
+  MX_USART2_UART_Init();
+  MX_TIM7_Init();
   /* USER CODE BEGIN 2 */
     // Initialize servos
     Servo_Init();
@@ -181,6 +211,7 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     // ADC1_triggerConvert();
+
 
 
   while (1)
@@ -209,6 +240,11 @@ int main(void)
     // // Convert ADC value to temperature in Celsius when using internal temperature sensor
     // temperature = ADC_readTemperature(adc_value);
     // printf("ADC Value: %d, Temperature: %d C\r\n", adc_value, (int)temperature);
+
+    // Send adc value to USART2
+    // sprintf(usart_buffer, "ADC Value: %d\r\n", adc_value);
+    // USART2_sendString(usart_buffer);
+    // USART2_Transmit(usart_buffer, strlen(usart_buffer));
 
     // convert ADC to angle (0-180)
     angle = (adc_value * 180) / 4095;

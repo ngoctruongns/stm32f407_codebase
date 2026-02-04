@@ -211,31 +211,12 @@ void ADC_IRQHandler(void)
 
         // Read the ADC conversion result
         uint16_t adc_value = LL_ADC_REG_ReadConversionData12(ADC1);
-        ADC1_IRQHandler(adc_value);
+        adc1_interrupt_handler(adc_value);
     }
   /* USER CODE END ADC_IRQn 0 */
   /* USER CODE BEGIN ADC_IRQn 1 */
 
   /* USER CODE END ADC_IRQn 1 */
-}
-
-/**
-  * @brief This function handles TIM2 global interrupt.
-  */
-void TIM2_IRQHandler(void)
-{
-  /* USER CODE BEGIN TIM2_IRQn 0 */
-  // Check for update interrupt flag
-    if (LL_TIM_IsActiveFlag_UPDATE(TIM2)) {
-        // Clear update interrupt flag
-        LL_TIM_ClearFlag_UPDATE(TIM2);
-        // Toggle LED LD3
-        LL_GPIO_TogglePin(LD3_GPIO_Port, LD3_Pin);
-    }
-  /* USER CODE END TIM2_IRQn 0 */
-  /* USER CODE BEGIN TIM2_IRQn 1 */
-
-  /* USER CODE END TIM2_IRQn 1 */
 }
 
 /**
@@ -271,6 +252,40 @@ void TIM3_IRQHandler(void)
   /* USER CODE BEGIN TIM3_IRQn 1 */
 
   /* USER CODE END TIM3_IRQn 1 */
+}
+
+/**
+  * @brief This function handles USART2 global interrupt.
+  */
+void USART2_IRQHandler(void)
+{
+  /* USER CODE BEGIN USART2_IRQn 0 */
+    if (LL_USART_IsActiveFlag_RXNE(USART2)) {
+        // Read DR will clear RXNE flag
+        uint8_t data = LL_USART_ReceiveData8(USART2);
+        usart2_interrupt_handler(data);
+    }
+  /* USER CODE END USART2_IRQn 0 */
+  /* USER CODE BEGIN USART2_IRQn 1 */
+
+  /* USER CODE END USART2_IRQn 1 */
+}
+
+/**
+  * @brief This function handles TIM7 global interrupt.
+  */
+void TIM7_IRQHandler(void)
+{
+  /* USER CODE BEGIN TIM7_IRQn 0 */
+    if (LL_TIM_IsActiveFlag_UPDATE(TIM7)) {
+        // Clear update interrupt flag
+        LL_TIM_ClearFlag_UPDATE(TIM7);
+        tim7_interrupt_handler();
+    }
+  /* USER CODE END TIM7_IRQn 0 */
+  /* USER CODE BEGIN TIM7_IRQn 1 */
+
+  /* USER CODE END TIM7_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */

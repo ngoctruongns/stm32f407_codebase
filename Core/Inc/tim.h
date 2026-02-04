@@ -58,6 +58,7 @@ typedef struct {
 void MX_TIM2_Init(void);
 void MX_TIM3_Init(void);
 void MX_TIM4_Init(void);
+void MX_TIM7_Init(void);
 
 /* USER CODE BEGIN Prototypes */
 
@@ -73,6 +74,8 @@ void TIM4_Set_PWM_DutyCycle(uint32_t Channel, uint32_t DutyCycle);
 void Servo_Init(void);
 void Servo_setAngle(Servo_ID servo_id, int16_t angle);
 
+int32_t Encoder_GetCount(void);
+
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
@@ -80,4 +83,3 @@ void Servo_setAngle(Servo_ID servo_id, int16_t angle);
 #endif
 
 #endif /* __TIM_H__ */
-
